@@ -1,0 +1,32 @@
+---
+title: "CodeBook"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Tidy Data Set Description
+
+#### Dimensions of the tidy data set
+
+This dataset contains 180 rows and 81 columns.
+
+#### Contents of the data set.
+
+Only the measurements on the mean and standard deviation of the measurement were kept in the tidy data set.
+Each row contains the averaged variables of the measurements for each activity and each subject.
+
+#### List of columns of the tidy data set
+
+```{r}
+names(tidyData)
+```
+
+#### Sample Content of tidy data set
+
+```{r}
+summary(tidyData)
+```
+

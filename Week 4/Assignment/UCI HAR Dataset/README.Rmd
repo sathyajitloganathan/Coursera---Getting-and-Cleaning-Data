@@ -1,0 +1,106 @@
+---
+title: "README"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Data Cleaning Process Explanation
+
+#### Reading all the data from the files
+
+All the data is read into data frames from the files provided for the assignment.
+
+``` r
+xTrainData <- read.table("./train/X_train.txt")
+yTrainData <- read.table("./train/y_train.txt")
+trainSubject <- read.table("./train/subject_train.txt")
+xTestData <- read.table("./test/X_test.txt")
+yTestData <- read.table("./test/y_test.txt")
+testSubject <- read.table("./test/subject_test.txt")
+```
+
+#### Merging train and test data components
+As the first step the columns of train set and the test sets are merged separately
+``` r
+TrainDataTemp <- cbind(trainSubject,yTrainData)
+TrainDataFinal <- cbind(TrainDataTemp,xTrainData)
+dim(TrainDataFinal)
+
+TestDataTemp <- cbind(testSubject, yTestData)
+TestDataFinal <- cbind(TestDataTemp, xTestData)
+dim(TestDataFinal)
+``` 
+
+#### Merging train data and test data
+Once the train and test sets are comnplete both of them are bound to form the complete data set.
+``` r
+allData <- rbind(TrainDataFinal, TestDataFinal)
+dim(allData)
+``` 
+
+#### Obtaining names of all the features 
+The names of the features are obtained from the features.txt file.
+``` r
+featureNames <- read.table("./features.txt")
+``` 
+
+#### Extracting the features with mean and standard deviation only
+Since only the mean and standard deviation measurements are required they are filtered from all of the features and stored to a different variable
+``` r
+ext_features <- featureNames[grepl("mean|std",featureNames$V2),]
+``` 
+
+
+#### Renaming column names
+The colnames of the complete data set is renamed as to match the names in the features.txt file
+``` r
+colnames(allData) <- c("subject","activity",as.vector(featureNames$V2))
+names(allData)
+``` 
+
+#### Filtering columns based on the extracted features
+Once the column names are changed now the data set has to be filtered based on the measurements containing the pattern mean and standard deviation.
+``` r
+allData <- allData[,c("subject","activity",as.vector(ext_features$V2))]
+dim(allData)
+``` 
+
+#### Reading activity labels from activity_labels.txt
+The labels corresponding to each activity number which is stored in the activity.txt is retrieved
+``` r
+activityLabels <- data.table::fread("activity_labels.txt")
+
+colnames(activityLabels) <- c("activity","activitylabel")
+
+dim(allData_dt)
+``` 
+
+
+#### Merging the activity labels table with the extracted data table
+The activity labels data table and the complete data set are merged so that the numbers have a meaningful representation.
+``` r
+allData_dt <- merge(allData_dt,activityLabels)
+``` 
+
+#### Removing redundant activity column
+
+``` r
+allData_dt <- select(allData_dt, -activity)
+View(allData_dt)
+``` 
+
+#### Summarizing data and writing to file
+The data is now summarized by averaging all the measurements for eacfh activity and subject
+``` r
+td <- tbl_df(allData_dt)
+td <- select(td,-activity)
+tidyData <- td %>% group_by(activitylabel,subject) %>% summarize_each(funs(mean))
+tidyData
+dim(tidyData)
+names(tidyData)
+tidyData
+write.table(tidyData,"./tidyData.txt",row.names=FALSE)
+``` 
